@@ -2,7 +2,9 @@ package com.example.notificationsproject;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
@@ -15,12 +17,10 @@ import android.widget.Button;
 
 public class MainActivity extends AppCompatActivity {
 
+    public static final String CHANEL_ID = "channel_id01";
+    public static final int NOTIFICATION_ID =1 ;
     Button mShowNotificationButton;
-    NotificationManager mNotificationManager;
-    NotificationCompat.Builder mBuilder;
-    PendingIntent mResultPendingIntent;
-    TaskStackBuilder mTaskStackBuilder;
-    Intent mResultIntent;
+
 
 
     @Override
@@ -30,35 +30,70 @@ public class MainActivity extends AppCompatActivity {
 
         mShowNotificationButton = findViewById(R.id.btnShowNotification);
 
-        mBuilder = new NotificationCompat.Builder(this);
-        mBuilder.setSmallIcon(R.mipmap.ic_launcher);
-        mBuilder.setContentTitle("Notification Title");
-        mBuilder.setContentText("Notification Detail...");
-
-        mResultIntent = new Intent(this, MainActivity.class);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            mTaskStackBuilder = TaskStackBuilder.create(this);
-            mTaskStackBuilder.addParentStack(MainActivity.this);
-            mTaskStackBuilder.addNextIntent(mResultIntent);
-            mResultPendingIntent = mTaskStackBuilder.getPendingIntent(0,PendingIntent.FLAG_UPDATE_CURRENT);
-        }
-
-        mBuilder.setContentIntent(mResultPendingIntent);
-        mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         mShowNotificationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mNotificationManager.notify(1,mBuilder.build());
+             showNotification();
             }
         });
 
 
     }
-    
+
+    private void showNotification() {
+
+        createNotificationChannel();
+
+       Intent mainIntent = new Intent(this,MainActivity.class);
+        mainIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent mainPIntent = PendingIntent.getActivity(this,0,mainIntent,PendingIntent.FLAG_ONE_SHOT);
+
+        Intent likeIntent = new Intent(this,LikeActivity.class);
+        likeIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent likePIntent = PendingIntent.getActivity(this,0,likeIntent,PendingIntent.FLAG_ONE_SHOT);
+
+        Intent dislikeIntent = new Intent(this,DislikeActivity.class);
+        dislikeIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent dislikePIntent = PendingIntent.getActivity(this,0,dislikeIntent,PendingIntent.FLAG_ONE_SHOT);
+
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this,CHANEL_ID);
+        builder.setSmallIcon(R.mipmap.ic_launcher);
+        builder.setContentTitle("Notification Title");
+        builder.setContentText("Notification Text");
+        builder.setPriority(NotificationCompat.PRIORITY_DEFAULT);
+        /////////////////////
+        builder.setAutoCancel(true);
+        builder.setContentIntent(mainPIntent);
+
+        builder.addAction(R.drawable.ic_like,"Like",likePIntent);
+        builder.addAction(R.drawable.ic_dislike,"Dislike" ,  dislikePIntent);
 
 
 
+        NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(this);
+        notificationManagerCompat.notify(NOTIFICATION_ID,builder.build());
+
+
+    }
+
+    private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT>= Build.VERSION_CODES.O){
+            CharSequence name = "My Notification";
+            String description = "My Notification Description";
+
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+
+            NotificationChannel notificationChannel = new NotificationChannel(CHANEL_ID,name,importance);
+            notificationChannel.setDescription(description);
+
+            NotificationManager notificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+            notificationManager.createNotificationChannel(notificationChannel);
+
+        }
+
+    }
 
 
 }
