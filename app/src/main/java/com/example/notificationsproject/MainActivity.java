@@ -10,6 +10,8 @@ import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -70,6 +72,16 @@ public class MainActivity extends AppCompatActivity {
         builder.addAction(R.drawable.ic_like,"Like",likePIntent);
         builder.addAction(R.drawable.ic_dislike,"Dislike" ,  dislikePIntent);
 
+
+        //Expandable Desciption
+       // builder.setStyle(new NotificationCompat.BigTextStyle().bigText("Lorem Ipsum, dizgi ve baskı endüstrisinde kullanılan mıgır metinlerdir. Lorem Ipsum, adı bilinmeyen bir matbaacının bir hurufat numune kitabı oluşturmak üzere bir yazı galerisini alarak karıştırdığı 1500'lerden beri endüstri standardı sahte metinler olarak kullanılmıştır."));
+
+
+
+
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources() ,R.drawable.logo);
+        builder.setLargeIcon(bitmap);
+        builder.setStyle(new NotificationCompat.BigPictureStyle().bigPicture(bitmap).bigLargeIcon(null));
 
 
         NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(this);
